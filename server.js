@@ -5,7 +5,7 @@ const cors = require('cors');
 const validator = require('validator');
 const helmet = require('helmet');
 require('dotenv').config();
-const path = require('path'); // Adicionado para manipular caminhos
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,14 +18,33 @@ if (!process.env.MONGO_URI) {
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://127.0.0.1:5500' }));
+
+// Configuração de CORS para múltiplos origens
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:5500',
+  'https://augusto-g-filipe.onrender.com'
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
 app.use(bodyParser.json({ limit: '10kb' }));
-app.use(express.static(path.join(__dirname, 'public'))); // Serve arquivos estáticos da pasta public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Conexão com MongoDB
+mongoose.set('debug', true); // Habilita logs de depuração do Mongoose
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
+  maxPoolSize: 10, // Limite de conexões
 })
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))
   .catch((err) => {
@@ -58,7 +77,8 @@ app.get('/', (req, res) => {
 
 // Rota de Contato
 app.post('/contact', async (req, res) => {
-  console.log('Requisição recebida:', req.body); // Log para depuração
+  console.log('Headers:', req.headers); // Log de cabeçalhos
+  console.log('Body:', req.body); // Log do corpo
   const { name, email, message } = req.body;
 
   // Validação
@@ -72,7 +92,7 @@ app.post('/contact', async (req, res) => {
   }
   if (message.length < 10) {
     console.log('Erro: Mensagem curta:', message.length);
-    return res.status(400).json({ error: 'A mensagem deve ter pelo menos  подроб: A mensagem deve ter pelo menos 10 caracteres.' });
+    return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres.' });
   }
 
   try {

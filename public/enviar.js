@@ -28,12 +28,32 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   submitButton.disabled = true;
   submitButton.textContent = 'Enviando...';
 
+  // Função para tentar a requisição com reintentos
+  async function tryFetch(url, options, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: AbortSignal.timeout(10000), // Timeout de 10 segundos
+        });
+        return response;
+      } catch (error) {
+        if (i < retries - 1) {
+          console.warn(`Tentativa ${i + 1} falhou. Tentando novamente em ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        throw error;
+      }
+    }
+  }
+
   try {
-    // Enviar dados ao backend (URL completa para ambiente local)
+    // Enviar dados ao backend
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/contact'
-      : '/contact'; // Usa caminho relativo no Render
-    const response = await fetch(backendUrl, {
+      : 'https://augusto-g-filipe.onrender.com/contact'; // URL absoluta em produção
+    const response = await tryFetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +70,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
     }
   } catch (error) {
-    alert('Erro ao enviar a mensagem. Tente novamente mais tarde.');
+    alert(`Erro ao enviar a mensagem: ${error.message || 'Tente novamente mais tarde.'}`);
     console.error('Erro:', error);
   } finally {
     // Reabilitar botão
