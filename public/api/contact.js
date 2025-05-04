@@ -1,25 +1,30 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// Conexão com MongoDB (executada uma vez por instância da função)
+// MongoDB connection (reused across function invocations)
 let conn = null;
 const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
   if (conn == null) {
     console.log('Conectando ao MongoDB...');
-    conn = await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,
-      maxPoolSize: 10,
-      retryWrites: true,
-      retryReads: true,
-    });
-    console.log('Conectado ao MongoDB com sucesso!');
+    try {
+      conn = await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 10000,
+        maxPoolSize: 10,
+        retryWrites: true,
+        retryReads: true,
+      });
+      console.log('Conectado ao MongoDB com sucesso!');
+    } catch (error) {
+      console.error('Erro ao conectar ao MongoDB:', error.message);
+      throw error;
+    }
   }
   return conn;
 };
 
-// Schema do Contato
+// Contact schema
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -29,19 +34,19 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Função serverless
+// Serverless function
 module.exports = async (req, res) => {
-  // Configurar CORS
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Ajuste para domínios específicos em produção
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', 'https://augusto-g-filipe.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Lidar com requisições OPTIONS (pré-voo CORS)
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Verificar método POST
+  // Validate method
   if (req.method !== 'POST') {
     console.log(`Método não permitido: ${req.method}`);
     return res.status(405).json({ error: 'Método não permitido. Use POST.' });
@@ -53,17 +58,16 @@ module.exports = async (req, res) => {
     body: req.body,
   });
 
-  // Conectar ao MongoDB
+  // Connect to MongoDB
   try {
     await connectDB();
   } catch (error) {
-    console.error('Erro ao conectar ao MongoDB:', error.message, error.stack);
     return res.status(500).json({ error: 'Erro ao conectar ao banco de dados.' });
   }
 
   const { name, email, message } = req.body;
 
-  // Validação
+  // Validation
   if (!name || !email || !message) {
     console.log('Erro: Campos obrigatórios ausentes', { name, email, message });
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -77,7 +81,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres.' });
   }
 
-  // Salvar no MongoDB
+  // Save to MongoDB
   try {
     const newContact = new Contact({
       name: validator.escape(name),
