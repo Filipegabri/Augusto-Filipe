@@ -29,8 +29,11 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   submitButton.textContent = 'Enviando...';
 
   try {
-    // Enviar dados ao backend
-    const response = await fetch('/api/enviar', {
+    // Enviar dados ao backend (URL completa para ambiente local)
+    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000/contact'
+      : '/contact'; // Usa caminho relativo no Render
+    const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +45,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
 
     if (response.ok) {
       alert('Mensagem enviada com sucesso!');
-      form.reset(); // Limpar o formulário
+      form.reset();
     } else {
       alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
     }
