@@ -28,7 +28,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   submitButton.disabled = true;
   submitButton.textContent = 'Enviando...';
 
-  // Função para tentar a requisição com reintentos
+  // Função para tentar a requisição
   async function tryFetch(url, options, retries = 5, delay = 1000) {
     for (let i = 0; i < retries; i++) {
       try {
@@ -52,7 +52,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     // URL do backend
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/api/contact'
-      : 'https://augusto-g-filipe.vercel.app/api/contact'; // Endpoint serverless no Vercel
+      : 'https://augusto-g-filipe.vercel.app/api/contact';
 
     console.log('Enviando requisição para:', backendUrl);
 
@@ -64,21 +64,18 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       body: JSON.stringify(formData),
     });
 
-    // Log da resposta
     console.log('Resposta do servidor:', {
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
     });
 
-    // Verificar status
     if (!response.ok) {
       const text = await response.text();
       console.error('Resposta do servidor (não-OK):', text);
       throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
     }
 
-    // Verificar Content-Type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();

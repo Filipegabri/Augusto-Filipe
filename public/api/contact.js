@@ -14,8 +14,8 @@ const connectDB = async () => {
     console.log('Conectando ao MongoDB...');
     try {
       conn = await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 5000, // Reduzido para evitar timeout
-        maxPoolSize: 5, // Menor pool para funções serverless
+        serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 5,
         retryWrites: true,
         retryReads: true,
       });
@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Lidar com requisições OPTIONS (CORS preflight)
+  // Lidar com requisições OPTIONS
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
