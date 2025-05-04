@@ -24,6 +24,7 @@ if (!process.env.MONGO_URI.startsWith('mongodb+srv://') && !process.env.MONGO_UR
 
 // Middleware para garantir respostas JSON
 app.use((req, res, next) => {
+  console.log(`Requisição recebida: ${req.method} ${req.url}`);
   res.setHeader('Content-Type', 'application/json');
   next();
 });
@@ -50,7 +51,7 @@ app.use(bodyParser.json({ limit: '10kb' }));
 // Conexão com MongoDB
 mongoose.set('debug', true); // Logs de depuração
 mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 10000, // Timeout de 10 segundos
+  serverSelectionTimeoutMS: 10000,
   maxPoolSize: 10,
   retryWrites: true,
   retryReads: true,
@@ -83,6 +84,22 @@ const Contact = mongoose.model('Contact', contactSchema);
 app.get('/api/test', (req, res) => {
   console.log('Requisição recebida em /api/test');
   res.status(200).json({ message: 'Servidor está funcionando corretamente!' });
+});
+
+// Rota de depuração
+app.get('/api/debug', async (req, res) => {
+  console.log('Requisição recebida em /api/debug');
+  try {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado';
+    res.status(200).json({
+      server: 'Online',
+      mongodb: dbStatus,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Erro na rota /api/debug:', error.message, error.stack);
+    res.status(500).json({ error: 'Erro ao verificar status do servidor.' });
+  }
 });
 
 // Rota de Contato
@@ -131,7 +148,10 @@ app.get('/', (req, res) => {
 });
 
 // Middleware para arquivos estáticos (após rotas da API)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  console.log('Verificando arquivos estáticos:', req.url);
+  express.static(path.join(__dirname, 'public'))(req, res, next);
+});
 
 // Middleware para rotas não encontradas (404)
 app.use((req, res) => {

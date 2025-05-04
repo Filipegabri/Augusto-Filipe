@@ -80,7 +80,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
       console.error('Resposta não é JSON:', text);
-      throw new Error(`Erro ${response.status}: Resposta do servidor não é JSON: ${text.slice(0, 100)}...`);
+      throw new Error(`Erro ${response.status}: Resposta do servidor não é JSON (Content-Type: ${contentType || 'nenhum'}): ${text}`);
     }
 
     const result = await response.json();
