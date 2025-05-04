@@ -16,8 +16,11 @@ if (!process.env.MONGO_URI) {
   process.exit(1);
 }
 
-// Middleware
-app.use(helmet());
+// Middleware para garantir respostas JSON
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
 
 // Configuração de CORS para múltiplos origens
 const allowedOrigins = [
@@ -35,20 +38,21 @@ app.use(cors({
   }
 }));
 
+app.use(helmet());
 app.use(bodyParser.json({ limit: '10kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Conexão com MongoDB
-mongoose.set('debug', true); // Habilita logs de depuração do Mongoose
+mongoose.set('debug', true); // Logs de depuração
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
-  maxPoolSize: 10, // Limite de conexões
+  serverSelectionTimeoutMS: 5000,
+  maxPoolSize: 10,
 })
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))
   .catch((err) => {
-    console.error('Erro ao conectar ao MongoDB:', err);
+    console.error('Erro ao conectar ao MongoDB:', err.message, err.stack);
     process.exit(1);
   });
 
@@ -57,7 +61,7 @@ mongoose.connection.on('connected', () => {
   console.log('MongoDB conectado!');
 });
 mongoose.connection.on('error', (err) => {
-  console.error('Erro no MongoDB:', err);
+  console.error('Erro no MongoDB:', err.message, err.stack);
 });
 
 // Schema do Contato
@@ -77,13 +81,17 @@ app.get('/', (req, res) => {
 
 // Rota de Contato
 app.post('/contact', async (req, res) => {
-  console.log('Headers:', req.headers); // Log de cabeçalhos
-  console.log('Body:', req.body); // Log do corpo
+  console.log('Requisição recebida em /contact:', {
+    method: req.method,
+    headers: req.headers,
+    body: req.body,
+  });
+
   const { name, email, message } = req.body;
 
   // Validação
   if (!name || !email || !message) {
-    console.log('Erro: Campos obrigatórios ausentes');
+    console.log('Erro: Campos obrigatórios ausentes', { name, email, message });
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
   if (!validator.isEmail(email)) {
@@ -102,15 +110,23 @@ app.post('/contact', async (req, res) => {
       message: validator.escape(message),
     });
     await newContact.save();
-    console.log('Mensagem salva:', newContact);
-    res.status(200).json({ message: 'Mensagem salva com sucesso!' });
+    console.log('Mensagem salva com sucesso:', newContact);
+    return res.status(200).json({ message: 'Mensagem salva com sucesso!' });
   } catch (error) {
     console.error('Erro ao salvar mensagem:', error.message, error.stack);
-    res.status(500).json({ error: 'Erro interno no servidor.' });
+    return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
 });
 
-// Iniciar servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+// Middleware para tratamento de erros globais
+app.use((err, req, res, next) => {
+  console.error('Erro global:', err.message, err.stack);
+  res.status(500).json({ error: 'Erro interno no servidor.' });
+});
+
+// Iniciar servidor apenas após conexão com MongoDB
+mongoose.connection.once('open', () => {
+  app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+  });
 });

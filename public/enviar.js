@@ -39,7 +39,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
         return response;
       } catch (error) {
         if (i < retries - 1) {
-          console.warn(`Tentativa ${i + 1} falhou. Tentando novamente em ${delay}ms...`);
+          console.warn(`Tentativa ${i + 1} falhou. Tentando novamente em ${delay}ms...`, error);
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
@@ -52,7 +52,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     // Enviar dados ao backend
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/contact'
-      : 'https://augusto-g-filipe.onrender.com/contact'; // URL absoluta em produção
+      : 'https://augusto-g-filipe.onrender.com/contact';
     const response = await tryFetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -61,17 +61,37 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       body: JSON.stringify(formData),
     });
 
+    // Verificar status HTTP antes de processar JSON
+    if (!response.ok) {
+      const text = await response.text(); // Obter corpo como texto para depuração
+      console.error('Resposta do servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: text,
+      });
+      throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
+    }
+
+    // Verificar se a resposta tem corpo antes de chamar json()
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('Resposta não é JSON:', text);
+      throw new Error('Resposta do servidor não é JSON');
+    }
+
     const result = await response.json();
 
     if (response.ok) {
       alert('Mensagem enviada com sucesso!');
       form.reset();
+      window.location.href = '/thanks.html'; // Redirecionar para página de agradecimento
     } else {
       alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
     }
   } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
     alert(`Erro ao enviar a mensagem: ${error.message || 'Tente novamente mais tarde.'}`);
-    console.error('Erro:', error);
   } finally {
     // Reabilitar botão
     submitButton.disabled = false;
