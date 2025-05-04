@@ -9,7 +9,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     message: form.querySelector('#message').value.trim(),
   };
 
-  // Validação no frontend
+  // Frontend validation
   if (!formData.name) {
     alert('Por favor, insira seu nome.');
     return;
@@ -24,17 +24,17 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     return;
   }
 
-  // Desabilitar botão durante a requisição
+  // Disable button
   submitButton.disabled = true;
   submitButton.textContent = 'Enviando...';
 
-  // Função para tentar a requisição com reintentos
+  // Retry fetch with timeout
   async function tryFetch(url, options, retries = 5, delay = 1000) {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await fetch(url, {
           ...options,
-          signal: AbortSignal.timeout(10000), // Timeout de 10 segundos
+          signal: AbortSignal.timeout(10000),
         });
         return response;
       } catch (error) {
@@ -49,10 +49,11 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   }
 
   try {
-    // Enviar dados ao backend
+    // Determine backend URL
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/contact'
       : 'https://augusto-g-filipe.onrender.com/contact';
+    
     const response = await tryFetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -61,21 +62,21 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       body: JSON.stringify(formData),
     });
 
-    // Log de depuração
+    // Log response details
     console.log('Resposta do servidor:', {
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
     });
 
-    // Verificar status HTTP
+    // Check HTTP status
     if (!response.ok) {
       const text = await response.text();
       console.error('Resposta do servidor (não-OK):', text);
       throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
     }
 
-    // Verificar se a resposta é JSON
+    // Check Content-Type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
@@ -88,7 +89,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     if (response.ok) {
       alert('Mensagem enviada com sucesso!');
       form.reset();
-      window.location.href = '/thanks.html'; // Redirecionar para página de agradecimento
+      window.location.href = '/thanks.html';
     } else {
       alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
     }
@@ -96,7 +97,6 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     console.error('Erro ao enviar mensagem:', error);
     alert(`Erro ao enviar a mensagem: ${error.message || 'Tente novamente mais tarde.'}`);
   } finally {
-    // Reabilitar botão
     submitButton.disabled = false;
     submitButton.textContent = 'Enviar';
   }

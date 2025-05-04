@@ -10,26 +10,30 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Validar variáveis de ambiente
+// Validate environment variables
 if (!process.env.MONGO_URI) {
   console.error('Erro: MONGO_URI não definido no arquivo .env');
   process.exit(1);
 }
 
-// Validar formato da MONGO_URI
 if (!process.env.MONGO_URI.startsWith('mongodb+srv://') && !process.env.MONGO_URI.startsWith('mongodb://')) {
   console.error('Erro: MONGO_URI inválida. Deve começar com "mongodb+srv://" ou "mongodb://"');
   process.exit(1);
 }
 
-// Middleware para garantir respostas JSON
+// Middleware to log all requests
 app.use((req, res, next) => {
   console.log(`Requisição recebida: ${req.method} ${req.url}`);
+  next();
+});
+
+// Middleware to set JSON content type
+app.use((req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   next();
 });
 
-// Configuração de CORS para múltiplos origens
+// CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5500',
@@ -48,8 +52,8 @@ app.use(cors({
 app.use(helmet());
 app.use(bodyParser.json({ limit: '10kb' }));
 
-// Conexão com MongoDB
-mongoose.set('debug', true); // Logs de depuração
+// MongoDB connection
+mongoose.set('debug', true);
 mongoose.connect(process.env.MONGO_URI, {
   serverSelectionTimeoutMS: 10000,
   maxPoolSize: 10,
@@ -62,7 +66,7 @@ mongoose.connect(process.env.MONGO_URI, {
     process.exit(1);
   });
 
-// Monitorar conexão com MongoDB
+// Monitor MongoDB connection
 mongoose.connection.on('connected', () => {
   console.log('MongoDB conectado!');
 });
@@ -70,7 +74,7 @@ mongoose.connection.on('error', (err) => {
   console.error('Erro no MongoDB:', err.message, err.stack);
 });
 
-// Schema do Contato
+// Contact schema
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -80,15 +84,9 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Rota de teste
-app.get('/api/test', (req, res) => {
-  console.log('Requisição recebida em /api/test');
-  res.status(200).json({ message: 'Servidor está funcionando corretamente!' });
-});
-
-// Rota de depuração
-app.get('/api/debug', async (req, res) => {
-  console.log('Requisição recebida em /api/debug');
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+  console.log('Requisição recebida em /api/health');
   try {
     const dbStatus = mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado';
     res.status(200).json({
@@ -97,12 +95,12 @@ app.get('/api/debug', async (req, res) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Erro na rota /api/debug:', error.message, error.stack);
+    console.error('Erro na rota /api/health:', error.message, error.stack);
     res.status(500).json({ error: 'Erro ao verificar status do servidor.' });
   }
 });
 
-// Rota de Contato
+// Contact endpoint
 app.post('/contact', async (req, res) => {
   console.log('Requisição recebida em /contact:', {
     method: req.method,
@@ -112,7 +110,7 @@ app.post('/contact', async (req, res) => {
 
   const { name, email, message } = req.body;
 
-  // Validação
+  // Validation
   if (!name || !email || !message) {
     console.log('Erro: Campos obrigatórios ausentes', { name, email, message });
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -141,31 +139,31 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-// Rota para a raiz (serve index.html)
+// Serve index.html for the root
 app.get('/', (req, res) => {
   console.log('Servindo index.html');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Middleware para arquivos estáticos (após rotas da API)
+// Static files (after API routes)
 app.use((req, res, next) => {
   console.log('Verificando arquivos estáticos:', req.url);
   express.static(path.join(__dirname, 'public'))(req, res, next);
 });
 
-// Middleware para rotas não encontradas (404)
+// 404 handler
 app.use((req, res) => {
   console.log('Rota não encontrada:', req.originalUrl);
   res.status(404).json({ error: 'Rota não encontrada.' });
 });
 
-// Middleware para tratamento de erros globais
+// Global error handler
 app.use((err, req, res, next) => {
   console.error('Erro global:', err.message, err.stack);
   res.status(500).json({ error: 'Erro interno no servidor.' });
 });
 
-// Iniciar servidor apenas após conexão com MongoDB
+// Start server after MongoDB connection
 mongoose.connection.once('open', () => {
   app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
