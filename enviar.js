@@ -4,24 +4,24 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   const form = e.target;
   const submitButton = form.querySelector('.btn-submit');
   const formData = {
-      name: form.querySelector('#name').value.trim(),
-      email: form.querySelector('#email').value.trim(),
-      message: form.querySelector('#message').value.trim(),
+    name: form.querySelector('#name').value.trim(),
+    email: form.querySelector('#email').value.trim(),
+    message: form.querySelector('#message').value.trim(),
   };
 
   // Validação no frontend
   if (!formData.name) {
-      alert('Por favor, insira seu nome.');
-      return;
+    alert('Por favor, insira seu nome.');
+    return;
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(formData.email)) {
-      alert('Por favor, insira um e-mail válido.');
-      return;
+    alert('Por favor, insira um e-mail válido.');
+    return;
   }
   if (formData.message.length < 10) {
-      alert('A mensagem deve ter pelo menos 10 caracteres.');
-      return;
+    alert('A mensagem deve ter pelo menos 10 caracteres.');
+    return;
   }
 
   // Desabilitar botão durante a requisição
@@ -29,34 +29,29 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   submitButton.textContent = 'Enviando...';
 
   try {
-      const response = await fetch('http://localhost:3000/contact', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-          timeout: 5000,
-      });
+    // Enviar dados ao backend
+    const response = await fetch('/api/enviar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
 
-      if (response.ok) {
-          form.reset();
-          window.location.href = 'thank-you.html';
-      } else if (response.status === 400) {
-          const errorData = await response.json();
-          alert(`Erro: ${errorData.error}`);
-      } else if (response.status === 404) {
-          alert('Erro: Não foi possível encontrar o serviço de contato. Verifique se o servidor está ativo.');
-      } else if (response.status === 500) {
-          alert('Erro interno no servidor. Tente novamente mais tarde.');
-      } else {
-          alert('Erro desconhecido. Por favor, tente novamente.');
-      }
+    const result = await response.json();
+
+    if (response.ok) {
+      alert('Mensagem enviada com sucesso!');
+      form.reset(); // Limpar o formulário
+    } else {
+      alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
+    }
   } catch (error) {
-      console.error('Erro de conexão:', error);
-      alert('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+    alert('Erro ao enviar a mensagem. Tente novamente mais tarde.');
+    console.error('Erro:', error);
   } finally {
-      // Reabilitar botão
-      submitButton.disabled = false;
-      submitButton.textContent = 'Enviar Mensagem';
+    // Reabilitar botão
+    submitButton.disabled = false;
+    submitButton.textContent = 'Enviar';
   }
 });

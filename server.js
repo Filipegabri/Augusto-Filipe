@@ -5,6 +5,7 @@ const cors = require('cors');
 const validator = require('validator');
 const helmet = require('helmet');
 require('dotenv').config();
+const path = require('path'); // Adicionado para manipular caminhos
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,7 +20,7 @@ if (!process.env.MONGO_URI) {
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://127.0.0.1:5500' }));
 app.use(bodyParser.json({ limit: '10kb' }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public'))); // Serve arquivos estáticos da pasta public
 
 // Conexão com MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -50,6 +51,11 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
+// Rota para a raiz (serve index.html)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Rota de Contato
 app.post('/contact', async (req, res) => {
   console.log('Requisição recebida:', req.body); // Log para depuração
@@ -66,7 +72,7 @@ app.post('/contact', async (req, res) => {
   }
   if (message.length < 10) {
     console.log('Erro: Mensagem curta:', message.length);
-    return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres.' });
+    return res.status(400).json({ error: 'A mensagem deve ter pelo menos  подроб: A mensagem deve ter pelo menos 10 caracteres.' });
   }
 
   try {

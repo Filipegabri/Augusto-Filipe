@@ -1,5 +1,4 @@
 // Inicializar AOS (Animate on Scroll)
-// Inicializar AOS (Animate on Scroll)
 AOS.init({
   duration: 800,
   once: true,
