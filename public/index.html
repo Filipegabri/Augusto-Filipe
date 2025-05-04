@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfólio de Augusto Filipe, visionário digital e desenvolvedor web.">
+    <meta name="keywords" content="desenvolvimento web, design gráfico, marketing digital, portfólio">
+    <meta name="author" content="Augusto Filipe">
+    <title>Augusto Filipe - Portfólio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particles-js" aria-hidden="true"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" aria-label="Alternar tema claro/escuro" onclick="toggleTheme()">
+        <i class="fas fa-sun"></i>
+    </button>
+
+    <!-- Navbar -->
+    <header class="navbar" data-aos="fade-down">
+        <div class="logo" aria-label="Logo Augusto Filipe">Augusto Filipe.</div>
+        <nav aria-label="Menu de navegação principal">
+            <ul class="nav-links">
+                <li><a href="#home" aria-current="page">Início</a></li>
+                <li><a href="#services">Serviços</a></li>
+                <li><a href="#portfolio">Portfólio</a></li>
+                <li><a href="#testimonial">Depoimentos</a></li>
+                <li><a href="#contact">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="parallax-bg"></div>
+        <div class="hero-content" data-aos="fade-right">
+            <h1>Olá, Eu Sou <span>Augusto Filipe</span></h1>
+            <h2>Visionário Digital & Desenvolvedor Web</h2>
+            <p>Transformando suas ideias em experiências digitais incríveis com criatividade e tecnologia.</p>
+            <div class="social-links">
+                <a href="cv/cv.pdf" class="btn-download" download>Baixar CV</a>
+                <a href="#contact" class="btn-contact">Entre em Contato</a>
+                <a href="https://linkedin.com/in/your-profile" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/your-profile" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        <div class="hero-image" data-aos="fade-left">
+            <img src="imagens/FOP-1.png" alt="Foto de Augusto Filipe, desenvolvedor web, em um fundo gradiente" loading="lazy" width="450" height="450" class="lazy">
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about" data-aos="fade-up">
+        <h2>Sobre Mim</h2>
+        <p>Sou Augusto Filipe, um visionário digital com mais de 4 anos de experiência em criar experiências online inesquecíveis. Especializado em desenvolvimento web, design gráfico e marketing digital, combino criatividade e tecnologia para entregar soluções que cativam e convertem.</p>
+        <button class="btn-read-more" aria-label="Saiba mais sobre Augusto Filipe">Saiba Mais</button>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services" data-aos="fade-Up">
+        <h2>Meus Serviços</h2>
+        <div class="service-cards">
+            <article class="card" data-aos="zoom-in" data-aos-delay="100">
+                <i class="fas fa-code"></i>
+                <h3>Desenvolvimento Web</h3>
+                <p>Construo sites rápidos, responsivos e otimizados que engajam sua audiência.</p>
+            </article>
+            <article class="card" data-aos="zoom-in" data-aos-delay="200">
+                <i class="fas fa-paint-brush"></i>
+                <h3>Design Gráfico</h3>
+                <p>Crio visuais impactantes que tornam sua marca memorável e única.</p>
+            </article>
+            <article class="card" data-aos="zoom-in" data-aos-delay="300">
+                <i class="fas fa-chart-line"></i>
+                <h3>Marketing Digital</h3>
+                <p>Impulsiono sua presença online com estratégias que geram resultados reais.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="portfolio" data-aos="fade-up">
+        <h2>Meu Portfólio</h2>
+        <div class="portfolio-slider">
+            <div class="slider-container" id="portfolioSlider">
+                <article class="portfolio-item">
+                    <img src="imagens/Landa-AD.webp" alt="Plataforma de E-commerce" loading="lazy" width="400" height="300">
+                    <div class="portfolio-overlay">
+                        <h3>Plataforma de E-commerce</h3>
+                        <p>Uma experiência de compra fluida com recursos avançados.</p>
+                        <a href="#" class="btn-view" aria-label="Ver projeto de e-commerce">Ver Projeto</a>
+                    </div>
+                </article>
+                <article class="portfolio-item">
+                    <img src="imagens/Lnading-modelo-1.webp" alt="Site de Agência Criativa" loading="lazy" width="400" height="300">
+                    <div class="portfolio-overlay">
+                        <h3>Site de Agência Criativa</h3>
+                        <p>Um site visualmente deslumbrante para uma agência de design.</p>
+                        <a href="#" class="btn-view" aria-label="Ver projeto de agência criativa">Ver Projeto</a>
+                    </div>
+                </article>
+                <article class="portfolio-item">
+                    <img src="imagens/Land-4.webp" alt="Plataforma de Blog" loading="lazy" width="400" height="300">
+                    <div class="portfolio-overlay">
+                        <h3>Plataforma de Blog</h3>
+                        <p>Um blog dinâmico com um CMS personalizado para gestão fácil.</p>
+                        <a href="#" class="btn-view" aria-label="Ver projeto de blog">Ver Projeto</a>
+                    </div>
+                </article>
+                <article class="portfolio-item">
+                    <img src="imagens/Landa-AD.webp" alt="Aplicativo de Gestão" loading="lazy" width="400" height="300">
+                    <div class="portfolio-overlay">
+                        <h3>Aplicativo de Gestão</h3>
+                        <p>Uma solução web para gerenciamento eficiente de tarefas.</p>
+                        <a href="#" class="btn-view" aria-label="Ver projeto de gestão">Ver Projeto</a>
+                    </div>
+                </article>
+                <article class="portfolio-item">
+                    <img src="imagens/Porfo-As1.png" alt="Landing Page de Evento" loading="lazy" width="400" height="300">
+                    <div class="portfolio-overlay">
+                        <h3>Landing Page de Evento</h3>
+                        <p>Uma página vibrante para promover um evento cultural.</p>
+                        <a href="#" class="btn-view" aria-label="Ver projeto de evento">Ver Projeto</a>
+                    </div>
+                </article>
+            </div>
+            <!-- Controles do Carrossel -->
+            <button class="slider-prev" aria-label="Projeto anterior" onclick="moveSlide(-1, 'portfolioSlider')"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-next" aria-label="Próximo projeto" onclick="moveSlide(1, 'portfolioSlider')"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots" id="portfolioDots"></div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section id="testimonial" class="testimonial" data-aos="fade-up">
+        <h2>Depoimentos</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial-container" id="testimonialSlider">
+                <article class="testimonial-item">
+                    <div class="testimonial-content">
+                        <img src="imagens/Biocure.Ao.webp" alt="Logotipo da empresa Biocure" loading="lazy" width="100" height="100">
+                        <div class="testimonial-text">
+                            <blockquote>"Augusto transformou nossa ideia em um site incrível! Sua atenção aos detalhes é excepcional."</blockquote>
+                            <h4>BIOCURE EP</h4>
+                            <p>EPA, Biocure</p>
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <article class="testimonial-item">
+                    <div class="testimonial-content">
+                        <img src="imagens/be-p2.jfif" alt="Logotipo da GG-Bet" loading="lazy" width="100" height="100">
+                        <div class="testimonial-text">
+                            <blockquote>"Trabalhar com Augusto foi um prazer. Ele entregou um design que superou nossas expectativas!"</blockquote>
+                            <h4>GG-Bet</h4>
+                            <p>GGBet, GG-Bet</p>
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                <article class="testimonial-item">
+                    <div class="testimonial-content">
+                        <img src="imagens/Netapp.AO-3.webp" alt="Logotipo da Netapp" loading="lazy" width="100" height="100">
+                        <div class="testimonial-text">
+                            <blockquote>"O profissionalismo de Augusto é impressionante. Nosso projeto foi concluído no prazo e com qualidade."</blockquote>
+                            <h4>EP-AO Netapp</h4>
+                            <p>EP, Netapp</p>
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <!-- Controles do Carrossel de Depoimentos -->
+            <button class="slider-prev" aria-label="Depoimento anterior" onclick="moveSlide(-1, 'testimonialSlider')"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-next" aria-label="Próximo depoimento" onclick="moveSlide(1, 'testimonialSlider')"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots" id="testimonialDots"></div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact" data-aos="fade-up">
+        <h2>Entre em Contato</h2>
+        <form id="contact-form" method="POST" aria-label="Formulário de contato">
+            <div class="form-group">
+                <label for="name" class="sr-only">Seu Nome</label>
+                <input type="text" id="name" name="name" placeholder="Seu Nome" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="email" class="sr-only">Seu Email</label>
+                <input type="email" id="email" name="email" placeholder="Seu Email" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="message" class="sr-only">Sua Mensagem</label>
+                <textarea id="message" name="message" placeholder="Sua Mensagem" required aria-required="true"></textarea>
+            </div>
+            <button type="submit" class="btn-submit" aria-label="Enviar mensagem">Enviar Mensagem</button>
+        </form>
+    </section>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" aria-label="Voltar ao topo" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer data-aos="fade-up">
+        <div class="footer-socials" aria-label="Links para redes sociais">
+            <a href="https://linkedin.com/in/your-profile" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/your-profile" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="https://instagram.com/in/your-profile" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://twitter.com/your-profile" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        </div>
+        <p>© 2025 Augusto Filipe. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="javascript.js"></script>
+    <script src="enviar.js"></script>
+    <script src="api/contact.js"></script>  
+</body>
+</html>
