@@ -52,7 +52,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     // URL do backend
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/api/contact'
-      : 'https://augusto-filipe.vercel.app/api/contact';
+      : 'https://augusto-g-filipe.vercel.app/api/contact';
 
     console.log('Enviando requisição para:', backendUrl);
 

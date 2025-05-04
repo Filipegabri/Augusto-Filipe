@@ -16,7 +16,7 @@
       "dest": "/api/$1",
       "methods": ["GET", "POST", "OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://augusto-filipe.vercel.app",
+        "Access-Control-Allow-Origin": "https://augusto-g-filipe.vercel.app",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
       }
