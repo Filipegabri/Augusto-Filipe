@@ -1,34 +1,41 @@
+// Handle form submission
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// Configuração do MongoDB
+// MongoDB connection
 let conn = null;
 const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
   if (!MONGO_URI) {
-    console.error('Erro: MONGO_URI não definido');
-    throw new Error('MONGO_URI não definido');
+    console.error('Error: MONGO_URI is not defined');
+    throw new Error('MONGO_URI is not defined');
   }
   if (conn == null) {
-    console.log('Conectando ao MongoDB...');
+    console.log('Connecting to MongoDB...');
     try {
       conn = await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 3000, // Faster timeout
         maxPoolSize: 5,
         retryWrites: true,
         retryReads: true,
       });
-      console.log('Conectado ao MongoDB com sucesso!');
+      console.log('Successfully connected to MongoDB');
     } catch (error) {
-      console.error('Erro ao conectar ao MongoDB:', error.message);
-      throw error;
+      console.error('Error connecting to MongoDB:', {
+        message: error.message,
+        code: error.code,
+        codeName: error.codeName,
+        uri: MONGO_URI.replace(/:([^@]+)@/, ':<hidden>@'), // Hide password
+        stack: error.stack,
+      });
+      throw new Error('Failed to connect to MongoDB');
     }
   }
   return conn;
 };
 
-// Schema do Contato
+// Contact schema
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -38,54 +45,63 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Função serverless
+// Serverless function
 module.exports = async (req, res) => {
-  // Configurar cabeçalhos CORS
-  res.setHeader('Access-Control-Allow-Origin', 'https://augusto-g-filipe.vercel.app');
+  // CORS headers
+  const allowedOrigins = [
+    'https://augusto-g-filipe.vercel.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Lidar com requisições OPTIONS
+  // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Validar método
+  // Validate method
   if (req.method !== 'POST') {
-    console.log(`Método não permitido: ${req.method}`);
-    return res.status(405).json({ error: 'Método não permitido. Use POST.' });
+    console.log(`Method not allowed: ${req.method}`);
+    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
-  console.log('Requisição recebida em /api/contact:', {
+  console.log('Received request at /api/contact:', {
     method: req.method,
     headers: req.headers,
     body: req.body,
   });
 
-  // Conectar ao MongoDB
+  // Connect to MongoDB
   try {
     await connectDB();
   } catch (error) {
-    return res.status(500).json({ error: 'Erro ao conectar ao banco de dados.' });
+    console.error('Database connection error:', error.message);
+    return res.status(500).json({ error: 'Failed to connect to the database.' });
   }
 
   const { name, email, message } = req.body;
 
-  // Validação
+  // Validation
   if (!name || !email || !message) {
-    console.log('Erro: Campos obrigatórios ausentes', { name, email, message });
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+    console.log('Error: Missing required fields', { name, email, message });
+    return res.status(400).json({ error: 'All fields are required.' });
   }
   if (!validator.isEmail(email)) {
-    console.log('Erro: E-mail inválido:', email);
-    return res.status(400).json({ error: 'E-mail inválido.' });
+    console.log('Error: Invalid email:', email);
+    return res.status(400).json({ error: 'Invalid email.' });
   }
   if (message.length < 10) {
-    console.log('Erro: Mensagem curta:', message.length);
-    return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres.' });
+    console.log('Error: Message too short:', message.length);
+    return res.status(400).json({ error: 'Message must be at least 10 characters.' });
   }
 
-  // Salvar no MongoDB
+  // Save to MongoDB
   try {
     const newContact = new Contact({
       name: validator.escape(name),
@@ -93,10 +109,10 @@ module.exports = async (req, res) => {
       message: validator.escape(message),
     });
     await newContact.save();
-    console.log('Mensagem salva com sucesso:', newContact);
-    return res.status(200).json({ message: 'Mensagem salva com sucesso!' });
+    console.log('Message saved successfully:', newContact);
+    return res.status(200).json({ message: 'Message saved successfully!' });
   } catch (error) {
-    console.error('Erro ao salvar mensagem:', error.message, error.stack);
-    return res.status(500).json({ error: 'Erro interno no servidor.' });
+    console.error('Error saving message:', error.message, error.stack);
+    return res.status(500).json({ error: 'Internal server error.' });
   }
 };
