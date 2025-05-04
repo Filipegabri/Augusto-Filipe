@@ -16,6 +16,12 @@ if (!process.env.MONGO_URI) {
   process.exit(1);
 }
 
+// Validar formato da MONGO_URI
+if (!process.env.MONGO_URI.startsWith('mongodb+srv://') && !process.env.MONGO_URI.startsWith('mongodb://')) {
+  console.error('Erro: MONGO_URI inválida. Deve começar com "mongodb+srv://" ou "mongodb://"');
+  process.exit(1);
+}
+
 // Middleware para garantir respostas JSON
 app.use((req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
@@ -44,11 +50,9 @@ app.use(bodyParser.json({ limit: '10kb' }));
 // Conexão com MongoDB
 mongoose.set('debug', true); // Logs de depuração
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 10000, // Aumentado para 10 segundos
+  serverSelectionTimeoutMS: 10000, // Timeout de 10 segundos
   maxPoolSize: 10,
-  retryWrites: true, // Reintentos automáticos
+  retryWrites: true,
   retryReads: true,
 })
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))

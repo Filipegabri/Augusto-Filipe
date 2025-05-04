@@ -29,7 +29,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   submitButton.textContent = 'Enviando...';
 
   // Função para tentar a requisição com reintentos
-  async function tryFetch(url, options, retries = 3, delay = 1000) {
+  async function tryFetch(url, options, retries = 5, delay = 1000) {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await fetch(url, {
@@ -80,7 +80,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
       console.error('Resposta não é JSON:', text);
-      throw new Error(`Resposta do servidor não é JSON: ${text.slice(0, 100)}...`);
+      throw new Error(`Erro ${response.status}: Resposta do servidor não é JSON: ${text.slice(0, 100)}...`);
     }
 
     const result = await response.json();
