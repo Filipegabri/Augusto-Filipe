@@ -40,15 +40,16 @@ app.use(cors({
 
 app.use(helmet());
 app.use(bodyParser.json({ limit: '10kb' }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Conexão com MongoDB
 mongoose.set('debug', true); // Logs de depuração
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 10000, // Aumentado para 10 segundos
   maxPoolSize: 10,
+  retryWrites: true, // Reintentos automáticos
+  retryReads: true,
 })
   .then(() => console.log('Conectado ao MongoDB com sucesso!'))
   .catch((err) => {
@@ -74,9 +75,10 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Rota para a raiz (serve index.html)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Rota de teste
+app.get('/api/test', (req, res) => {
+  console.log('Requisição recebida em /api/test');
+  res.status(200).json({ message: 'Servidor está funcionando corretamente!' });
 });
 
 // Rota de Contato
@@ -116,6 +118,21 @@ app.post('/contact', async (req, res) => {
     console.error('Erro ao salvar mensagem:', error.message, error.stack);
     return res.status(500).json({ error: 'Erro interno no servidor.' });
   }
+});
+
+// Rota para a raiz (serve index.html)
+app.get('/', (req, res) => {
+  console.log('Servindo index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Middleware para arquivos estáticos (após rotas da API)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware para rotas não encontradas (404)
+app.use((req, res) => {
+  console.log('Rota não encontrada:', req.originalUrl);
+  res.status(404).json({ error: 'Rota não encontrada.' });
 });
 
 // Middleware para tratamento de erros globais

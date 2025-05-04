@@ -61,23 +61,26 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       body: JSON.stringify(formData),
     });
 
-    // Verificar status HTTP antes de processar JSON
+    // Log de depuração
+    console.log('Resposta do servidor:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
+    // Verificar status HTTP
     if (!response.ok) {
-      const text = await response.text(); // Obter corpo como texto para depuração
-      console.error('Resposta do servidor:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: text,
-      });
+      const text = await response.text();
+      console.error('Resposta do servidor (não-OK):', text);
       throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
     }
 
-    // Verificar se a resposta tem corpo antes de chamar json()
+    // Verificar se a resposta é JSON
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
       console.error('Resposta não é JSON:', text);
-      throw new Error('Resposta do servidor não é JSON');
+      throw new Error(`Resposta do servidor não é JSON: ${text.slice(0, 100)}...`);
     }
 
     const result = await response.json();
