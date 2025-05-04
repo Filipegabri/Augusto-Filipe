@@ -1,17 +1,21 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-// MongoDB connection (reused across function invocations)
+// Configuração do MongoDB
 let conn = null;
 const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
+  if (!MONGO_URI) {
+    console.error('Erro: MONGO_URI não definido');
+    throw new Error('MONGO_URI não definido');
+  }
   if (conn == null) {
     console.log('Conectando ao MongoDB...');
     try {
       conn = await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 10000,
-        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000, // Reduzido para evitar timeout
+        maxPoolSize: 5, // Menor pool para funções serverless
         retryWrites: true,
         retryReads: true,
       });
@@ -24,7 +28,7 @@ const connectDB = async () => {
   return conn;
 };
 
-// Contact schema
+// Schema do Contato
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -34,19 +38,19 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Serverless function
+// Função serverless
 module.exports = async (req, res) => {
-  // Set CORS headers
+  // Configurar cabeçalhos CORS
   res.setHeader('Access-Control-Allow-Origin', 'https://augusto-g-filipe.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle CORS preflight
+  // Lidar com requisições OPTIONS (CORS preflight)
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Validate method
+  // Validar método
   if (req.method !== 'POST') {
     console.log(`Método não permitido: ${req.method}`);
     return res.status(405).json({ error: 'Método não permitido. Use POST.' });
@@ -58,7 +62,7 @@ module.exports = async (req, res) => {
     body: req.body,
   });
 
-  // Connect to MongoDB
+  // Conectar ao MongoDB
   try {
     await connectDB();
   } catch (error) {
@@ -67,7 +71,7 @@ module.exports = async (req, res) => {
 
   const { name, email, message } = req.body;
 
-  // Validation
+  // Validação
   if (!name || !email || !message) {
     console.log('Erro: Campos obrigatórios ausentes', { name, email, message });
     return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -81,7 +85,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'A mensagem deve ter pelo menos 10 caracteres.' });
   }
 
-  // Save to MongoDB
+  // Salvar no MongoDB
   try {
     const newContact = new Contact({
       name: validator.escape(name),

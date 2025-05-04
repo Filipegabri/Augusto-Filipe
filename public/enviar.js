@@ -9,7 +9,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     message: form.querySelector('#message').value.trim(),
   };
 
-  // Frontend validation
+  // Validação no frontend
   if (!formData.name) {
     alert('Por favor, insira seu nome.');
     return;
@@ -24,11 +24,11 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     return;
   }
 
-  // Disable button
+  // Desabilitar botão
   submitButton.disabled = true;
   submitButton.textContent = 'Enviando...';
 
-  // Retry fetch with timeout
+  // Função para tentar a requisição com reintentos
   async function tryFetch(url, options, retries = 5, delay = 1000) {
     for (let i = 0; i < retries; i++) {
       try {
@@ -49,10 +49,10 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   }
 
   try {
-    // Backend URL
+    // URL do backend
     const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000/api/contact'
-      : '/api/contact'; // Vercel serverless endpoint
+      : 'https://augusto-g-filipe.vercel.app/api/contact'; // Endpoint serverless no Vercel
 
     console.log('Enviando requisição para:', backendUrl);
 
@@ -64,21 +64,21 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       body: JSON.stringify(formData),
     });
 
-    // Log response
+    // Log da resposta
     console.log('Resposta do servidor:', {
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
     });
 
-    // Check status
+    // Verificar status
     if (!response.ok) {
       const text = await response.text();
       console.error('Resposta do servidor (não-OK):', text);
       throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
     }
 
-    // Check Content-Type
+    // Verificar Content-Type
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
