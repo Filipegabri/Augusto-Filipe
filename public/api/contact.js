@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const validator = require('validator');
 
 // Configuração do MongoDB
-let conn = null;
+let client = null;
 const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
@@ -10,38 +10,32 @@ const connectDB = async () => {
     console.error('Erro: MONGO_URI não definido');
     throw new Error('MONGO_URI não definido');
   }
-  if (conn == null) {
+  if (!client) {
     console.log('Conectando ao MongoDB...');
     try {
-      conn = await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 3000, // Reduzido para evitar timeout no Vercel
+      client = new MongoClient(MONGO_URI, {
+        serverApi: {
+          version: ServerApiVersion.v1,
+          strict: true,
+          deprecationErrors: true,
+        },
+        serverSelectionTimeoutMS: 3000, // Timeout curto para Vercel
         maxPoolSize: 5,
-        retryWrites: true,
-        retryReads: true,
       });
+      await client.connect();
       console.log('Conectado ao MongoDB com sucesso!');
     } catch (error) {
       console.error('Erro ao conectar ao MongoDB:', {
         message: error.message,
         code: error.code,
         codeName: error.codeName,
-        uri: MONGO_URI.replace(/:([^@]+)@/, ':<hidden>@'), // Oculta senha
+        uri: MONGO_URI.replace(/:([^@]+)@/, ':<hidden>@'),
       });
       throw new Error('Falha ao conectar ao banco de dados');
     }
   }
-  return conn;
+  return client;
 };
-
-// Schema do Contato
-const contactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
-const Contact = mongoose.model('Contact', contactSchema);
 
 // Função serverless
 module.exports = async (req, res) => {
@@ -76,8 +70,9 @@ module.exports = async (req, res) => {
   });
 
   // Conectar ao MongoDB
+  let dbClient;
   try {
-    await connectDB();
+    dbClient = await connectDB();
   } catch (error) {
     console.error('Erro de conexão com o banco de dados:', error.message);
     return res.status(500).json({ error: 'Falha ao conectar ao banco de dados.' });
@@ -101,12 +96,15 @@ module.exports = async (req, res) => {
 
   // Salvar no MongoDB
   try {
-    const newContact = new Contact({
+    const db = dbClient.db('FormularioDB'); // Nome do banco
+    const collection = db.collection('contacts'); // Nome da coleção
+    const newContact = {
       name: validator.escape(name),
       email: validator.normalizeEmail(email),
       message: validator.escape(message),
-    });
-    await newContact.save();
+      createdAt: new Date(),
+    };
+    await collection.insertOne(newContact);
     console.log('Mensagem salva com sucesso:', newContact);
     return res.status(200).json({ message: 'Mensagem salva com sucesso!' });
   } catch (error) {

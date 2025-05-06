@@ -19,3 +19,4 @@ Thumbs.db
 # Arquivos temporários
 *.log
 *.tmp
+.vercel
