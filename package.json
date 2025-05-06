@@ -1,0 +1,16 @@
+{
+  "name": "meu-portifolio",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "echo 'Use `vercel dev` to run locally' && exit 0",
+    "build": "echo 'Build completo' && exit 0",
+    "dev": "echo 'Use `vercel dev` to run locally' && exit 0"
+  },
+  "dependencies": {
+    "mongoose": "^7.6.3",
+    "validator": "^13.9.0"
+  },
+  "devDependencies": {
+    "vercel": "^41.7.0"
+  }
+}
