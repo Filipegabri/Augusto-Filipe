@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obrigado - Augusto Filipe</title>
+    <meta name="description" content="Obrigado por entrar em contato com Augusto Filipe.">
+    <meta name="author" content="Augusto Filipe">
+    <title>Obrigado!</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <section class="thank-you" style="text-align: center; padding: 100px 5%;">
-        <h1>Obrigado por Entrar em Contato!</h1>
-        <p>Recebemos sua mensagem e responderemos em breve.</p>
-        <a href="index.html" class="btn-return">Voltar ao Início</a>
-    </section>
+    <div class="container thank-you" data-aos="fade-up" data-aos-duration="1000">
+        <h1 class="thank-you-title">Obrigado por sua mensagem!</h1>
+        <p class="thank-you-text">Entrarei em contato com você em breve.</p>
+        <a href="/" class="btn-return" aria-label="Voltar ao início">Voltar ao Início</a>
+    </div>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
 </body>
 </html>

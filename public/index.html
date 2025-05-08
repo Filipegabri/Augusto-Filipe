@@ -42,7 +42,7 @@
             <h2>Visionário Digital & Desenvolvedor Web</h2>
             <p>Transformando suas ideias em experiências digitais incríveis com criatividade e tecnologia.</p>
             <div class="social-links">
-                <a href="cv/cv.pdf" class="btn-download" download>Baixar CV</a>
+                <a href="cv/Curriculo_Augusto_Filipe (1).pdf" class="btn-download" download>Baixar CV</a>
                 <a href="#contact" class="btn-contact">Entre em Contato</a>
                 <a href="https://linkedin.com/in/your-profile" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
                 <a href="https://github.com/your-profile" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
@@ -56,12 +56,12 @@
     <!-- About Section -->
     <section id="about" class="about" data-aos="fade-up">
         <h2>Sobre Mim</h2>
-        <p>Sou Augusto Filipe, um visionário digital com mais de 4 anos de experiência em criar experiências online inesquecíveis. Especializado em desenvolvimento web, design gráfico e marketing digital, combino criatividade e tecnologia para entregar soluções que cativam e convertem.</p>
+        <p>Sou Augusto Filipe, um visionário digital com mais de 4 anos de experiência em criar experiências online inesquecíveis. Especializado em desenvolvimento web, design gráfico e marketing digital, combino criatividade e tecnologia para entrega soluções que cativam e convertem.</p>
         <button class="btn-read-more" aria-label="Saiba mais sobre Augusto Filipe">Saiba Mais</button>
     </section>
 
     <!-- Services Section -->
-    <section id="services" class="services" data-aos="fade-Up">
+    <section id="services" class="services" data-aos="fade-up">
         <h2>Meus Serviços</h2>
         <div class="service-cards">
             <article class="card" data-aos="zoom-in" data-aos-delay="100">
@@ -128,7 +128,6 @@
                     </div>
                 </article>
             </div>
-            <!-- Controles do Carrossel -->
             <button class="slider-prev" aria-label="Projeto anterior" onclick="moveSlide(-1, 'portfolioSlider')"><i class="fas fa-chevron-left"></i></button>
             <button class="slider-next" aria-label="Próximo projeto" onclick="moveSlide(1, 'portfolioSlider')"><i class="fas fa-chevron-right"></i></button>
             <div class="slider-dots" id="portfolioDots"></div>
@@ -192,7 +191,6 @@
                     </div>
                 </article>
             </div>
-            <!-- Controles do Carrossel de Depoimentos -->
             <button class="slider-prev" aria-label="Depoimento anterior" onclick="moveSlide(-1, 'testimonialSlider')"><i class="fas fa-chevron-left"></i></button>
             <button class="slider-next" aria-label="Próximo depoimento" onclick="moveSlide(1, 'testimonialSlider')"><i class="fas fa-chevron-right"></i></button>
             <div class="slider-dots" id="testimonialDots"></div>
@@ -238,8 +236,8 @@
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
-    <script src="javascript.js"></script>
     <script src="enviar.js"></script>
-    <script src="api/contact.js"></script>  
+    <script src="javascript.js"></script>
+    <script src=".netlify\functions\contacts.js"></script>
 </body>
 </html>

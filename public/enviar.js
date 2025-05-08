@@ -9,27 +9,26 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     message: form.querySelector('#message').value.trim(),
   };
 
-  // Validação no frontend
+  // Client-side validation
   if (!formData.name) {
-    alert('Por favor, insira seu nome.');
+    showNotification('Por favor, insira seu nome.', 'error');
     return;
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(formData.email)) {
-    alert('Por favor, insira um e-mail válido.');
+    showNotification('Por favor, insira um e-mail válido.', 'error');
     return;
   }
   if (formData.message.length < 10) {
-    alert('A mensagem deve ter pelo menos 10 caracteres.');
+    showNotification('A mensagem deve ter pelo menos 10 caracteres.', 'error');
     return;
   }
 
-  // Desabilitar botão
+  // Disable button and show loader
   submitButton.disabled = true;
-  submitButton.textContent = 'Enviando...';
+  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
-  // Função para tentar a requisição
-  async function tryFetch(url, options, retries = 5, delay = 1000) {
+  async function tryFetch(url, options, retries = 3, delay = 1000) {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await fetch(url, {
@@ -40,7 +39,7 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
       } catch (error) {
         if (i < retries - 1) {
           console.warn(`Tentativa ${i + 1} falhou. Tentando novamente em ${delay}ms...`, error);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
         throw error;
@@ -49,12 +48,14 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   }
 
   try {
-    // URL do backend
-    const backendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000/api/contact'
-      : 'https://augusto-g-filipe.vercel.app/api/contact';
+    // Use current host for local development
+    const backendUrl =
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? `${window.location.protocol}//${window.location.hostname}:${window.location.port}/.netlify/functions/contact`
+        : '/.netlify/functions/contact';
 
-    console.log('Enviando requisição para:', backendUrl);
+    console.log('Tentando enviar requisição para:', backendUrl);
+    console.log('Dados enviados:', formData);
 
     const response = await tryFetch(backendUrl, {
       method: 'POST',
@@ -73,6 +74,15 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     if (!response.ok) {
       const text = await response.text();
       console.error('Resposta do servidor (não-OK):', text);
+      if (response.status === 405) {
+        throw new Error('Método não permitido. Verifique a configuração da função Netlify.');
+      }
+      if (response.status === 404) {
+        throw new Error('Função não encontrada. Verifique se a função "contact" está configurada no Netlify.');
+      }
+      if (response.status === 500) {
+        throw new Error('Erro no servidor. Pode ser um problema com a conexão ao MongoDB.');
+      }
       throw new Error(`Erro ${response.status}: ${text || response.statusText}`);
     }
 
@@ -80,27 +90,42 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
       console.error('Resposta não é JSON:', text);
-      throw new Error(`Erro ${response.status}: Resposta do servidor não é JSON (Content-Type: ${contentType || 'nenhum'}): ${text}`);
+      throw new Error(`Resposta do servidor não é JSON: ${text}`);
     }
 
     const result = await response.json();
+    console.log('Resultado JSON:', result);
 
     if (response.ok) {
-      alert('Mensagem enviada com sucesso!');
+      showNotification('Mensagem enviada com sucesso!', 'success');
       form.reset();
-      window.location.href = '/thanks.html';
+      setTimeout(() => {
+        window.location.href = '/thank-you.html';
+      }, 2000);
     } else {
-      alert(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`);
+      showNotification(`Erro: ${result.error || 'Falha ao enviar a mensagem.'}`, 'error');
     }
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
     let errorMessage = error.message || 'Tente novamente mais tarde.';
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      errorMessage = 'Não foi possível conectar ao servidor. Verifique se o backend está ativo ou tente novamente mais tarde.';
+      errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão ou tente novamente.';
     }
-    alert(`Erro ao enviar a mensagem: ${errorMessage}`);
+    showNotification(`Erro ao enviar a mensagem: ${errorMessage}`, 'error');
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = 'Enviar';
+    submitButton.innerHTML = 'Enviar Mensagem';
   }
 });
+
+// Função para exibir notificações
+function showNotification(message, type) {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}
